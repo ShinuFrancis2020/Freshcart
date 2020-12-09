@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "150478276843",
+    "firebase_url": "https://freshcartcustomer-94d3b.firebaseio.com",
+    "project_id": "freshcartcustomer-94d3b",
+    "storage_bucket": "freshcartcustomer-94d3b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:150478276843:android:77353bcf419731212c56ae",
+        "android_client_info": {
+          "package_name": "com.example.freshcart_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "150478276843-ai84c99jcahqjfd1hdgpimtl2ukg21ku.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.freshcart_app",
+            "certificate_hash": "e315112b1444e7a4364ce5d1b1a7752d5b999222"
+          }
+        },
+        {
+          "client_id": "150478276843-dssvpts1989mpbkbb2nv5tsm0a3a8qcu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB2AzJehULTUWHinGSRlOcOpKes9n8c9NU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "150478276843-dssvpts1989mpbkbb2nv5tsm0a3a8qcu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
