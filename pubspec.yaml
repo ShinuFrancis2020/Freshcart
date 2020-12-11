@@ -73,6 +73,7 @@ flutter:
   - assets/freshcartlogo.png
   - assets/meat.jpeg
   - assets/vegetables.jpg
+  - assets/home.png
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

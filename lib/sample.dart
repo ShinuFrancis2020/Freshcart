@@ -2,8 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:freshcart_app/AddressAdd.dart';
-import 'package:freshcart_app/viewcategoryproducts.dart';
-import 'package:freshcart_app/viewcityproducts.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
@@ -37,7 +35,6 @@ class _HomePage extends State<HomePage> {
     await profile();
     await sellerView();
     await category();
-    await viewproduct();
   }
   var listprofile;
   var cityid;
@@ -135,7 +132,6 @@ class _HomePage extends State<HomePage> {
     loading=false;
     setState(() {});
   }
-
   void logout() async{
     var url=Prefmanager.baseurl+'/user/logout';
     var token=await Prefmanager.getToken();
@@ -160,7 +156,7 @@ class _HomePage extends State<HomePage> {
   }
   var le;
   List seller=[];
-  int pag=0,coun=0;
+  int pag=1,coun=5;
   void  sellerView() async {
     print("seller view");
     var url = Prefmanager.baseurl+'/user/sellerlist?city='+cityid;
@@ -177,17 +173,15 @@ class _HomePage extends State<HomePage> {
     //print(json.decode(response.body));
     if (json.decode(response.body)['status']) {
       seller=json.decode(response.body)['data'];
-
       le=json.decode(response.body)['count'];
-      // for (int i = 0; i < json.decode(response.body)['data'].length; i++)
-      //   seller.add(json.decode(response.body)['data'][i]);
-     // page++;
+      for (int i = 0; i < json.decode(response.body)['data'].length; i++)
+        seller.add(json.decode(response.body)['data'][i]);
+      page++;
     }
     progress=false;
     loading=false;
     setState(() {});
   }
-
 
   List search=[];
   //List p=[];
@@ -695,27 +689,13 @@ class _HomePage extends State<HomePage> {
                   GestureDetector(
                       child: Container(
                         height: 50,
-                        color:Colors.grey[100],
+                        color:Colors.grey,
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Row(
                               children:[
                                 new Icon(Icons.add_location_alt),
-                                Text.rich(
-                                  TextSpan(
-                                    text: ' Deliver to  ',
-                                    style: TextStyle(fontSize:16),
-                                    children: <TextSpan>[
-                                      TextSpan(
-                                          text: currentcity,
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            decoration: TextDecoration.underline,
-                                          )),
-                                      // can add more TextSpans here...
-                                    ],
-                                  ),
-                                )
+                                Text("  Deliver to "+currentcity,style: TextStyle(fontWeight: FontWeight.normal,fontSize: 16),)
                               ]
                           ),
                         ),
@@ -728,157 +708,71 @@ class _HomePage extends State<HomePage> {
                     padding: const EdgeInsets.all(8.0),
                     child: Row(
                         children:[
-                          Text("Sellers",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18),)
+                          Text("Sellers",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 16),)
                         ]
                     ),
                   ),
-                  Container(
-                    color: Colors.white,
-                    padding: EdgeInsets.all(8),
-                    height:150,
-                    child:ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount:seller.length,
-                        itemBuilder: (BuildContext context,int index){
-                          return
-                            InkWell(
-                                child: Row(
-                                  children: [
-                                    SizedBox(
-                                      width: 15,
-                                    ),
+                  Column(
+                    children: [
+                      Expanded(
 
-                                    new Row(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children:[
+                        child: Container(
+                          height:100,
+                          child:ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount:seller.length,
+                              itemBuilder: (BuildContext context,int index){
+                                return
+                                  InkWell(
+                                      child: Row(
+                                        children: [
+                                          SizedBox(
+                                            width: 5,
+                                          ),
 
-                                        Column(
+                                          new Row(
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children:[
-                                              Row(
-                                                children: [
 
-                                                  Container(
-                                                    child: CircleAvatar(
-                                                      radius: 40.0,
-                                                      backgroundColor: Colors.white,
-                                                      backgroundImage: AssetImage('assets/userlogo.jpg'),
+                                              Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children:[
+                                                    Row(
+                                                      children: [
+                                                        Container(
+                                                          child: CircleAvatar(
+                                                            radius: 30.0,
+                                                            backgroundColor: Colors.white,
+                                                            backgroundImage: AssetImage('assets/userlogo.jpg'),
+                                                          ),
+                                                        ),
+                                                      ],
                                                     ),
-                                                  ),
-                                                ],
+                                                    //Text('ghhh'),
+
+                                                    Text(seller[index]['name'],style:TextStyle(fontWeight: FontWeight.bold,),textAlign:TextAlign.start,overflow: TextOverflow.ellipsis,),
+
+
+                                                  ]
                                               ),
-                                              //Text('ghhh'),
 
-                                              Text(seller[index]['name'],style:TextStyle(fontWeight: FontWeight.bold,color: Colors.black,fontSize: 15),textAlign:TextAlign.center),
-
-
-                                            ]
-                                        ),
-
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                onTap:() {
-                                   Navigator.push(context,new MaterialPageRoute(builder: (context)=>new viewcityproducts(seller[index]['_id'],cityid,seller[index]['name'])));
-                                }
-                            );
-                        }
-                    ),
-                  ),
-                  SizedBox(
-                      height: 200.0,
-                      //width: double.infinity,
-                      // width:340,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Carousel(
-                          images: [
-                            AssetImage("assets/fishimage3.jpg"),
-                            AssetImage("assets/vegetables.jpg"),
-                            AssetImage("assets/meat.jpeg"),
-
-                          ],
-                          dotColor: Colors.red,
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                      onTap:() {
+                                        // Navigator.push(context,new MaterialPageRoute(builder: (context)=>new VieweachProduct(profile[index]['_id'],profile[index]['seller']['_id'],widget.deldate)));
+                                      }
+                                  );
+                              }
+                          ),
                         ),
-                      )),
-                  SizedBox(
-                    height:30,
-                  ),
-                  Row(
-                      mainAxisAlignment:MainAxisAlignment.spaceBetween,
-                      children:[
-                        Container(
-                            padding:EdgeInsets.fromLTRB(80, 0, 10, 0),
-                            alignment: Alignment.center,
-                            child:Text("Shop from categories",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),)
-                        ),
-                      ]
-                  ),
-                  SizedBox(
-                    height:20,
-                  ),
-                  progress?Center(child:CircularProgressIndicator(),):
-                  Container(
-                    height: 150,
-                    child: GridView.count(
-                      scrollDirection: Axis.vertical,
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      childAspectRatio: 0.45,
-                      crossAxisCount: 3,
-                      children: List.generate(listcat.length,(index){
-                        return GestureDetector(
-                          child: Container(
-                            padding: EdgeInsets.all(5) ,
-                            //padding:EdgeInsets.fromLTRB(10, 0, 10, 0),
-                            child:Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-
-                                // Image(image: AssetImage('assets/meat.jpeg')),
-                                //  SizedBox(
-                                //      height:10
-                                //  ),
-                                //Text("Fish",style:TextStyle(fontWeight: FontWeight.bold,),textAlign:TextAlign.start,overflow: TextOverflow.ellipsis,),
-                                if(listcat[index]['name']=='Fish')
-                                  Image(image: AssetImage('assets/fishimage2.jpg')),
-                                if(listcat[index]['name']=='Meat')
-                                  Image(image: AssetImage('assets/meat.jpeg')),
-                                if(listcat[index]['name']=='Vegetables')
-                                  Image(image: AssetImage('assets/vegetables.jpg')),
-                                SizedBox(
-                                    height:10
-                                ),
-                                Text(listcat[index]['name'],style:TextStyle(fontSize:18,fontWeight: FontWeight.bold,),textAlign:TextAlign.center,overflow: TextOverflow.ellipsis,),
-
-                              ],
-                            ),),
-                          onTap: () {
-                            Navigator.push(context, new MaterialPageRoute(builder: (context) => viewcategoryproducts(listcat[index]["_id"],cityid)));
-                            //Navigator.pop(context);
-                          },
-                        );
-                      }),
-                    ),
-                  ),
-                  Container(
-                    padding: EdgeInsets.all(20),
-                    height: 150.0,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: AssetImage(
-                            'assets/home.png'),
-                        fit: BoxFit.fill,
                       ),
-                      shape: BoxShape.rectangle,
-                    ),
+                    ],
                   ),
-
                   progress?Center(child:CircularProgressIndicator(),):
                   Container(
-                    height:100,
+                    height:50,
                     child:ListView.builder(
                         scrollDirection: Axis.horizontal,
                         itemCount:sellers.length,
@@ -941,8 +835,84 @@ class _HomePage extends State<HomePage> {
                         }
                     ),
                   ),
+                  SizedBox(
+                      height: 200.0,
+                      //width: double.infinity,
+                      // width:340,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Carousel(
+                          images: [
+                            AssetImage("assets/fishimage3.jpg"),
+                            AssetImage("assets/vegetables.jpg"),
+                            AssetImage("assets/meat.jpeg"),
 
+                          ],
+                          dotColor: Colors.red,
+                        ),
+                      )),
+                  SizedBox(
+                    height:30,
+                  ),
+                  Row(
+                      mainAxisAlignment:MainAxisAlignment.spaceBetween,
+                      children:[
+                        Container(
+                            padding:EdgeInsets.fromLTRB(10, 0, 10, 0),
+                            alignment: Alignment.topLeft,
+                            child:Text("Category",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),)
+                        ),
 
+                        // Container(
+                        //     padding:EdgeInsets.fromLTRB(10, 0, 10, 0),
+                        //     alignment: Alignment.topRight,
+                        //     child:Text("See all")
+                        // ),
+                      ]
+                  ),
+                  SizedBox(
+                    height:20,
+                  ),
+                  progress?Center(child:CircularProgressIndicator(),):
+                  GridView.count(
+                    scrollDirection: Axis.vertical,
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    crossAxisCount: 2 ,
+                    children: List.generate(listcat.length,(index){
+                      return GestureDetector(
+                        child: Container(
+                          padding: EdgeInsets.all(5) ,
+                          //padding:EdgeInsets.fromLTRB(10, 0, 10, 0),
+                          child:Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+
+                              // Image(image: AssetImage('assets/meat.jpeg')),
+                              //  SizedBox(
+                              //      height:10
+                              //  ),
+                              //Text("Fish",style:TextStyle(fontWeight: FontWeight.bold,),textAlign:TextAlign.start,overflow: TextOverflow.ellipsis,),
+                              if(listcat[index]['name']=='Fish')
+                                Image(image: AssetImage('assets/fishimage2.jpg')),
+                              if(listcat[index]['name']=='Meat')
+                                Image(image: AssetImage('assets/meat.jpeg')),
+                              if(listcat[index]['name']=='Vegetables')
+                                Image(image: AssetImage('assets/vegetables.jpg')),
+                              SizedBox(
+                                  height:10
+                              ),
+                              Text(listcat[index]['name'],style:TextStyle(fontSize:16,fontWeight: FontWeight.bold,),textAlign:TextAlign.start,overflow: TextOverflow.ellipsis,),
+
+                            ],
+                          ),),
+                        onTap: () {
+                          Navigator.push(context, new MaterialPageRoute(builder: (context) => SellerView(listcat[index]["_id"],listcat[index]['name'])));
+                          //Navigator.pop(context);
+                        },
+                      );
+                    }),
+                  ),
                 ],
               ),
             ),
@@ -1052,7 +1022,7 @@ class _HomePage extends State<HomePage> {
                 Container(
                     padding: EdgeInsets.all(10),
                     //height: MediaQuery.of(context).size.height,
-                    child:Text("Where do you want the delivery?",style:TextStyle(fontWeight: FontWeight.bold,fontSize: 18,color: Colors.indigo),)
+                    child:Text("Where do you want the delivery?",style:TextStyle(fontWeight: FontWeight.bold,fontSize: 14,color: Colors.indigo),)
                 ),
                 SingleChildScrollView(
                     child: Padding(
