@@ -183,6 +183,12 @@ class _viewcategoryproducts extends State<viewcategoryproducts> {
                                                             Expanded(flex:1,child: Text("Seller Name: "+profile[index]['seller']['name'],style: TextStyle(fontWeight: FontWeight.bold),)),
                                                           ]
                                                       ),
+                                                      Row(
+                                                          children:[
+
+                                                            Expanded(flex:1,child: Text("Next Delivery on: "+d.format(DateTime.parse(profile[index]['deliverydetails']['deliveryDate'])),style: TextStyle(fontWeight: FontWeight.bold),)),
+                                                          ]
+                                                      ),
 
                                                     ]
                                                 )
@@ -196,7 +202,7 @@ class _viewcategoryproducts extends State<viewcategoryproducts> {
                                     ],
                                   ),
                                   onTap:() {
-                                    // Navigator.push(context,new MaterialPageRoute(builder: (context)=>new VieweachProduct(profile[index]['_id'],profile[index]['seller']['_id'],widget.deldate)));
+                                    Navigator.push(context,new MaterialPageRoute(builder: (context)=>new VieweachProduct(profile[index])));
                                   }
                               )
                           );

@@ -6,28 +6,35 @@ import 'package:freshcart_app/Prefmanager.dart';
 import 'package:freshcart_app/VieweachProduct.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-class ViewProduct extends StatefulWidget {
-  final id,sellerid,sellername,name,deldate;
-  ViewProduct(this.sellerid,this.id,this.sellername,this.name,this.deldate);
+class ProductAll extends StatefulWidget {
+  final id;
+  ProductAll(this.id);
   @override
-  _ViewProduct createState() => _ViewProduct();
+  _ProductAll createState() => _ProductAll();
 }
-class _ViewProduct extends State<ViewProduct> {
+class _ProductAll extends State<ProductAll> {
 
   @override
   void initState() {
     super.initState();
-     viewproduct();
-     //sellerprofile();
+    viewproduct();
+
+    print(widget.id);
+    //sellerprofile();
   }
   var d=new DateFormat('dd-MM-yy');
-  bool progress=true;
+  bool progress=false;
   List profile=[];
   //List p=[];
   int page=1,count=5;
-  var len,pid,deldate;
+  var deldate;
+  var len;
   void  viewproduct() async {
-    var url = Prefmanager.baseurl+'/product/getbyseller?sellerid='+widget.sellerid+'&category='+widget.id+'&count='+count.toString()+'&page='+page.toString();
+    setState(() {
+      progress=true;
+    });
+//print('/product/getbyseller?city='+widget.id+'&sellerid='+widget.sellerid+'&count='+count.toString()+'&page='+page.toString());
+    var url = Prefmanager.baseurl+'/product/all?city='+widget.id+'&count='+count.toString()+'&page='+page.toString();
     var token = await Prefmanager.getToken();
     Map<String, String> requestHeaders = {
       'Content-type': 'application/json',
@@ -38,15 +45,18 @@ class _ViewProduct extends State<ViewProduct> {
     var response = await http.get(url,headers:requestHeaders);
     print(json.decode(response.body));
     if (json.decode(response.body)['status']) {
-      pid=json.decode(response.body)['data']['_id'];
-      deldate=json.decode(response.body)['data']['deliverydetails']['deliveryDate'];
+      //deldate=json.decode(response.body)['data']['deliveryadddress']['deliverydate'];
       len=json.decode(response.body)['count'];
       for (int i = 0; i < json.decode(response.body)['data'].length; i++)
         profile.add(json.decode(response.body)['data'][i]);
-        page++;
+      page++;
     }
     else
-      print("Somjj");
+      Fluttertoast.showToast(
+        msg: json.decode(response.body)['msg'],
+        backgroundColor: Colors.grey,
+        textColor: Colors.black,
+      );
 
     progress=false;
     loading=false;
@@ -55,46 +65,46 @@ class _ViewProduct extends State<ViewProduct> {
 
   bool selected=true;
   bool loading=false;
-@override
-Widget build(BuildContext context) {
-  return new WillPopScope(
-    onWillPop: () async => false,
-    child: Scaffold(
-    appBar: AppBar(
-    elevation: 0.0,
-      title: Text(widget.sellername+" ("+widget.name+")"
-  ),
-      leading: new IconButton(
-        icon: new Icon(Icons.arrow_back),
+  @override
+  Widget build(BuildContext context) {
+    return new WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        appBar: AppBar(
+          elevation: 0.0,
+          title: Text('View products'
+          ),
+          leading: new IconButton(
+            icon: new Icon(Icons.arrow_back),
 
-        onPressed: () => Navigator.of(context).pop(),
-      ),
-    ),
-      body: SafeArea(
-        child: progress?Center( child: CircularProgressIndicator(),):
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ),
+        body: SafeArea(
+          child: progress?Center( child: CircularProgressIndicator(),):
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Expanded(child:NotificationListener<ScrollNotification>(
-              onNotification: (ScrollNotification scrollInfo) {
-          if (!loading && scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
-              if(len>profile.length){
-                print(len);
-                print(profile.length);
-                viewproduct();
-                setState(() {
-                  loading = true;
-                });
-              }
-                else{}
+                onNotification: (ScrollNotification scrollInfo) {
+                  if (!loading && scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
+                    if(len>profile.length){
+                      print(len);
+                      print(profile.length);
+                      viewproduct();
+                      setState(() {
+                        loading = true;
+                      });
+                    }
+                    else{}
 
-          }
-          else{}
-          //  setState(() =>loading = false);
-          return true;
-          },
+                  }
+                  else{}
+                  //  setState(() =>loading = false);
+                  return true;
+                },
                 child: Container(
-                 height:MediaQuery.of(context).size.height,
+                  height:MediaQuery.of(context).size.height,
                   child: ListView.builder(
                       padding: const EdgeInsets.all(10.0),
                       itemCount: profile.length,
@@ -128,10 +138,10 @@ Widget build(BuildContext context) {
                                               child: ClipRRect(
                                                 borderRadius:BorderRadius.circular(65.0),
                                                 child:FadeInImage(
-                                                //   image:NetworkImage(
-                                                //       Prefmanager.baseurl+"/u/"+profile[index]['seller']["photo"]) ,
-                                                image: AssetImage('assets/vegetables.jpg'),
-                                                placeholder: AssetImage("assets/userlogo.jpg"),
+                                                  //   image:NetworkImage(
+                                                  //       Prefmanager.baseurl+"/u/"+profile[index]['seller']["photo"]) ,
+                                                  image: AssetImage('assets/vegetables.jpg'),
+                                                  placeholder: AssetImage("assets/userlogo.jpg"),
                                                   fit: BoxFit.cover,
                                                   width:90,
                                                   height:90,
@@ -166,9 +176,9 @@ Widget build(BuildContext context) {
                                                       ),
                                                       Row(
                                                           children:[
-                                                            widget.deldate==null?
+                                                            profile[index]['deliverydetails']['deliveryDate']==null?
                                                             Text("No new delivery date set",style:TextStyle(fontWeight: FontWeight.bold)):
-                                                            Expanded(flex:1,child: Text("Next delivery by "+d.format(DateTime.parse(widget.deldate)),style: TextStyle(fontWeight: FontWeight.bold),)),
+                                                            Expanded(flex:1,child: Text("Next delivery by "+d.format(DateTime.parse( profile[index]['deliverydetails']['deliveryDate'])),style: TextStyle(fontWeight: FontWeight.bold),)),
                                                           ]
                                                       ),
 
@@ -184,7 +194,7 @@ Widget build(BuildContext context) {
                                     ],
                                   ),
                                   onTap:() {
-                                    Navigator.push(context,new MaterialPageRoute(builder: (context)=>new VieweachProduct(profile[index])));
+                                     Navigator.push(context,new MaterialPageRoute(builder: (context)=>new VieweachProduct(profile[index])));
                                   }
                               )
                           );
@@ -205,7 +215,7 @@ Widget build(BuildContext context) {
         ),
       ),
 
-  );
-}
+    );
+  }
 
 }

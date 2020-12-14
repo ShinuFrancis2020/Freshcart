@@ -89,10 +89,11 @@ class _PhoneVerify  extends State <PhoneVerify > {
       var response = await http.post(url,body:data);
         print(json.decode(response.body));
         if (json.decode(response.body)['status']) {
-          print(json.decode(response.body)['msg']);
+          //print(json.decode(response.body)['msg']);
           await Prefmanager.setToken(json.decode(response.body)['signindata']['token']);
           prog=false;
-           Navigator.push(context,new MaterialPageRoute(builder: (context)=>new HomePage()));
+          ViewData();
+          // Navigator.push(context,new MaterialPageRoute(builder: (context)=>new HomePage()));
         }
     }} catch (e) {
       print(e.toString());
@@ -439,5 +440,63 @@ class _PhoneVerify  extends State <PhoneVerify > {
       ),
       ),
     );
+  }
+  var mycity;
+  void ViewData() async {
+    var url = Prefmanager.baseurl +'/location/getcity?city='+city.text;
+    var token = await Prefmanager.getToken();
+    Map data={
+      "x-auth-token":token,
+    };
+    print("ggg"+city.text);
+     print(token);
+    //print(data.toString());
+    //var body =json.encode(data);
+    var response = await http.get(url, headers:{"Content-Type":"application/json", "x-auth-token":token});
+    print(json.decode(response.body));
+    if(json.decode(response.body)['status']) {
+      mycity=json.decode(response.body)['data']['_id'];
+      MyData();
+    }
+    else {
+      Fluttertoast.showToast(
+          msg: json.decode(response.body)['msg'],
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          backgroundColor: Colors.grey,
+          textColor: Colors.white,
+          fontSize: 20.0
+      );
+    }
+
+  }
+  void MyData() async {
+    var url = Prefmanager.baseurl +'/user/Edit';
+    var token = await Prefmanager.getToken();
+    Map data={
+      "x-auth-token":token,
+      "currentcity":mycity
+    };
+    //print("ggg"+current);
+    // print(token);
+    //print(data.toString());
+    var body =json.encode(data);
+    var response = await http.post(url, headers:{"Content-Type":"application/json", "x-auth-token":token}, body:body);
+    print(json.decode(response.body));
+    if(json.decode(response.body)['status']) {
+      Navigator.push(context,new MaterialPageRoute(builder: (context)=>new HomePage()));
+
+    }
+    else {
+      Fluttertoast.showToast(
+          msg: json.decode(response.body)['msg'],
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          backgroundColor: Colors.grey,
+          textColor: Colors.white,
+          fontSize: 20.0
+      );
+    }
+
   }
   }

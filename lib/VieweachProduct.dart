@@ -8,8 +8,8 @@ import 'package:freshcart_app/ViewsellerProductsall.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 class VieweachProduct extends StatefulWidget {
-  final pid,sellerid,deldate;
-  VieweachProduct(this.pid,this.sellerid,this.deldate);
+  final details;
+  VieweachProduct(this.details);
   @override
   _VieweachProduct createState() => _VieweachProduct();
 }
@@ -22,7 +22,7 @@ class _VieweachProduct extends State<VieweachProduct> {
  Future<void> allFunctions() async{
    await senddata();
     await vieweachproduct();
-    await sellerproducts();
+    //await sellerproducts();
 
   }
   var d=new DateFormat('dd-MM-yy');
@@ -32,7 +32,7 @@ class _VieweachProduct extends State<VieweachProduct> {
   //List product=[];
   //List p=[];
   void  vieweachproduct() async {
-    var url = Prefmanager.baseurl+'/product/info?id='+widget.pid;
+    var url = Prefmanager.baseurl+'/product/info?id='+widget.details["_id"];
     var token = await Prefmanager.getToken();
     Map<String, String> requestHeaders = {
       'Content-type': 'application/json',
@@ -54,37 +54,37 @@ class _VieweachProduct extends State<VieweachProduct> {
     loading=false;
     setState(() {});
   }
-  bool prog=true;
-  List profile=[];
-  void  sellerproducts() async {
-    var url = Prefmanager.baseurl+'/product/getbyseller?sellerid='+widget.sellerid;
-    var token = await Prefmanager.getToken();
-    Map<String, String> requestHeaders = {
-      'Content-type': 'application/json',
-      'Accept': 'application/json',
-      'x-auth-token': token,
-      //'category':widget.id,
-    };
-    var response = await http.get(url,headers:requestHeaders);
-    print(json.decode(response.body));
-    if (json.decode(response.body)['status']) {
-
-
-      for (int i = 0; i <json.decode(response.body)['data'].length; i++){
-        if(json.decode(response.body)['data'][i]['_id']==widget.pid)
-          {
-
-          }
-        else
-        profile.add(json.decode(response.body)['data'][i]);
-      }
-     }
-    else
-      print("Somjj");
-
-    prog=false;
-    setState(() {});
-  }
+  // bool prog=true;
+  // List profile=[];
+  // void  sellerproducts() async {
+  //   var url = Prefmanager.baseurl+'/product/getbyseller?sellerid='+widget.sellerid;
+  //   var token = await Prefmanager.getToken();
+  //   Map<String, String> requestHeaders = {
+  //     'Content-type': 'application/json',
+  //     'Accept': 'application/json',
+  //     'x-auth-token': token,
+  //     //'category':widget.id,
+  //   };
+  //   var response = await http.get(url,headers:requestHeaders);
+  //   print(json.decode(response.body));
+  //   if (json.decode(response.body)['status']) {
+  //
+  //
+  //     for (int i = 0; i <json.decode(response.body)['data'].length; i++){
+  //       if(json.decode(response.body)['data'][i]['_id']==widget.pid)
+  //         {
+  //
+  //         }
+  //       else
+  //       profile.add(json.decode(response.body)['data'][i]);
+  //     }
+  //    }
+  //   else
+  //     print("Somjj");
+  //
+  //   prog=false;
+  //   setState(() {});
+  // }
 
 bool selected=true;
   bool loading=false;
@@ -138,26 +138,40 @@ bool selected=true;
 
                   Row(
                     children: [
-                      widget.deldate==null?
+                      widget.details['deliverydetails']['deliveryDate']==null?
                       Text("No new delivery date set",style:TextStyle(fontWeight: FontWeight.bold)):
-                      Expanded(flex:1,child: Text("Next delivery by "+d.format(DateTime.parse(widget.deldate)),style: TextStyle(fontWeight: FontWeight.bold),)),
+                      Expanded(flex:1,child: Text("Next delivery by "+d.format(DateTime.parse(widget.details['deliverydetails']['deliveryDate'])),style: TextStyle(fontWeight: FontWeight.bold),)),
                     ],
                   ),
                   SizedBox(
-                      height:20
+                      height:40
                   ),
+                  // FlatButton(
+                  //   height: 50,
+                  //   minWidth:MediaQuery.of(context).size.width /1,
+                  //   textColor: Colors.white,
+                  //   color:  buttonCheck==true?Colors.green:Colors.green,
+                  //   child: Text('Place Order'),
+                  //   // onPressed: () {
+                  //   //   buttonCheck==true?
+                  //   //  // Navigator.push(context,new MaterialPageRoute(builder: (context)=>new PlaceOrder(widget.pid,product['unit'])))
+                  //   //   :null;
+                  //   //
+                  //   // },
+                  //   //onPressed: null,
+                  // ),
+
                   FlatButton(
                     height: 50,
                     minWidth:MediaQuery.of(context).size.width /1,
                     textColor: Colors.white,
-                    color:  buttonCheck==true?Colors.green:Colors.grey,
+                    color: Colors.green,
                     child: Text('Place Order'),
                     onPressed: () {
-                      buttonCheck==true?
-                      Navigator.push(context,new MaterialPageRoute(builder: (context)=>new PlaceOrder(widget.pid,product['unit']))):null;
 
-                    },
-                    //onPressed: null,
+                      Navigator.push(context,new MaterialPageRoute(builder: (context)=>new PlaceOrder(widget.details['_id'],widget.details['unit'])));
+
+                          },
                   ),
                   SizedBox(
                       height:10
@@ -166,90 +180,8 @@ bool selected=true;
                       SizedBox(
                         height:20
                       ),
-                profile.length>1?
-                  Column(
-                    children: [
-                      Row(
-                          mainAxisAlignment:MainAxisAlignment.spaceBetween,
-                          children:[
-                            Text("More by Seller",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 16),),
 
-                            FlatButton(
-                              textColor: Colors.green,
-                              child: Text(
-                                'See All',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) =>
-                                      ViewsellerProductsall(widget.sellerid,widget.pid,widget.deldate)),
-                                  //MaterialPageRoute(builder: (context) => DrawerDemo()),
-                                ); //signup screen
-                              },
-                            ),
-                          ]
-                      ),
-                      SizedBox(
-                        height:20,
-                      ),
-                      Container(
-                        height:300,
-                        child: prog?Center( child: CircularProgressIndicator(),): ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                              itemCount: profile.length>3?3:profile.length,
-                              itemBuilder: (BuildContext context,int index){
-                                return
-                                  InkWell(
-                                      child: Row(
-                                        children: [
-                                          SizedBox(
-                                            width: 5,
-                                          ),
 
-                                          new Row(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children:[
-
-                                              Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children:[
-                                                    SizedBox(
-                                                      height: 5,
-                                                    ),
-                                                    Image(image: AssetImage('assets/fishimage2.jpg'),),
-                                                    SizedBox(
-                                                        height:10
-                                                    ),
-                                                    // Column(
-                                                    //     children:sellerProducts(context)
-                                                    // ),
-                                                    Text(profile[index]['productname'],style:TextStyle(fontWeight: FontWeight.bold,),textAlign:TextAlign.start,overflow: TextOverflow.ellipsis,),
-                                                    SizedBox(
-                                                        height:5
-                                                    ),
-                                                    Expanded(flex:1,child: Text(profile[index]['description']?? " ")),
-                                                    // widget.deldate==null?
-                                                    // Text("No delivery date",style:TextStyle(fontWeight: FontWeight.bold)):
-                                                    // Expanded(flex:1,child: Text("Delivery by "+d.format(DateTime.parse(widget.deldate)),style: TextStyle(fontWeight: FontWeight.bold),)),
-                                                  ]
-                                              ),
-
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                      onTap:() {
-                                        Navigator.push(context,new MaterialPageRoute(builder: (context)=>new VieweachProduct(profile[index]['_id'],profile[index]['seller']['_id'],widget.deldate)));
-                                      }
-                                  );
-                              }
-                          ),
-                      ),
-                    ],
-                  )
-                    :SizedBox.shrink(),
                 ],
               ),
             ),
@@ -268,7 +200,7 @@ bool selected=true;
       var token=await Prefmanager.getToken();
       Map data={
         'x-auth-token': token,
-        'product':widget.pid,
+        'product':widget.details['_id'],
       };
       print(data.toString());
       var body=json.encode(data);

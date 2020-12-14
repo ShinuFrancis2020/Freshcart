@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:freshcart_app/AddressAdd.dart';
+import 'package:freshcart_app/ProductAll.dart';
+import 'package:freshcart_app/VieweachProduct.dart';
 import 'package:freshcart_app/viewcategoryproducts.dart';
 import 'package:freshcart_app/viewcityproducts.dart';
 import 'package:geocoder/geocoder.dart';
@@ -37,8 +39,11 @@ class _HomePage extends State<HomePage> {
     await profile();
     await sellerView();
     await category();
+    await ProductView();
     await viewproduct();
+
   }
+  var mycity;
   var listprofile;
   var cityid;
   List<bool> checkValue=[];
@@ -65,15 +70,14 @@ class _HomePage extends State<HomePage> {
       print(listprofile);
       cityid=json.decode(response.body)['data']['currentcity']['_id'];
       print(cityid);
+      mycity=json.decode(response.body)['data']['currentcity']['city'];
       deliverylength=listprofile['deliveryaddress'];
       for(int i=0;i<deliverylength.length;i++) {
-        checkValue.add(false);
+        //checkValue.add(false);
         print(deliverylength);
       }
-      listprofile['currentcity'].isEmpty?
-      _getCurrentLocation()
-          :currentcity=listprofile['currentcity']['city'];
-      print(currentcity);
+
+
     }
     else
       Fluttertoast.showToast(msg:json.decode(response.body)['msg'],);
@@ -187,6 +191,37 @@ class _HomePage extends State<HomePage> {
     loading=false;
     setState(() {});
   }
+  var leng;
+  List product=[];
+  //int pa=1,cou=5;
+  void  ProductView() async {
+    print("seller view");
+    var url = Prefmanager.baseurl+'/product/all?city='+cityid;
+      print("dgdg");
+    var token = await Prefmanager.getToken();
+    Map<String, String> requestHeaders = {
+      'Content-type': 'application/json',
+      'Accept': 'application/json',
+      'x-auth-token': token,
+      //'category':widget.id,
+    };
+    print("ddff");
+    var response = await http.get(url,headers:requestHeaders);
+    //print(json.decode(response.body));
+    if (json.decode(response.body)['status']) {
+      product=json.decode(response.body)['data'];
+      print(product);
+
+      leng=json.decode(response.body)['count'];
+      // for (int i = 0; i < json.decode(response.body)['data'].length; i++)
+      //   seller.add(json.decode(response.body)['data'][i]);
+      // page++;
+    }
+    progress=false;
+    loading=false;
+    setState(() {});
+  }
+
 
 
   List search=[];
@@ -218,6 +253,7 @@ class _HomePage extends State<HomePage> {
     setState(() {});
   }
   bool loading=false;
+
   Widget groupItems(){
     return Column(
         children:[
@@ -692,6 +728,7 @@ class _HomePage extends State<HomePage> {
                   SizedBox(
                       height:10
                   ),
+
                   GestureDetector(
                       child: Container(
                         height: 50,
@@ -707,7 +744,7 @@ class _HomePage extends State<HomePage> {
                                     style: TextStyle(fontSize:16),
                                     children: <TextSpan>[
                                       TextSpan(
-                                          text: currentcity,
+                                          text: mycity,
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             decoration: TextDecoration.underline,
@@ -734,7 +771,7 @@ class _HomePage extends State<HomePage> {
                   ),
                   Container(
                     color: Colors.white,
-                    padding: EdgeInsets.all(8),
+                    padding: EdgeInsets.all(8.0),
                     height:150,
                     child:ListView.builder(
                         scrollDirection: Axis.horizontal,
@@ -745,15 +782,16 @@ class _HomePage extends State<HomePage> {
                                 child: Row(
                                   children: [
                                     SizedBox(
-                                      width: 15,
+                                      width:10,
                                     ),
 
                                     new Row(
                                       crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisAlignment: MainAxisAlignment.center,
                                       children:[
 
                                         Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            crossAxisAlignment: CrossAxisAlignment.center,
                                             children:[
                                               Row(
                                                 children: [
@@ -833,7 +871,7 @@ class _HomePage extends State<HomePage> {
                             padding: EdgeInsets.all(5) ,
                             //padding:EdgeInsets.fromLTRB(10, 0, 10, 0),
                             child:Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
 
                                 // Image(image: AssetImage('assets/meat.jpeg')),
@@ -862,15 +900,108 @@ class _HomePage extends State<HomePage> {
                       }),
                     ),
                   ),
+
                   Container(
-                    padding: EdgeInsets.all(20),
+                    padding: EdgeInsets.all(8),
                     height: 150.0,
                     width: double.infinity,
                     decoration: BoxDecoration(
                       image: DecorationImage(
                         image: AssetImage(
                             'assets/home.png'),
-                        fit: BoxFit.fill,
+                        fit: BoxFit.contain,
+                      ),
+                      shape: BoxShape.rectangle,
+                    ),
+                  ),
+                  SizedBox(
+                    height:50,
+                  ),
+                  Row(
+                      mainAxisAlignment:MainAxisAlignment.spaceBetween,
+                      children:[
+                        Container(
+                          color: Colors.grey[80],
+                          height:40,
+                            padding:EdgeInsets.fromLTRB(10, 0, 10, 0),
+                            alignment: Alignment.topLeft,
+                            child:Text("Top Deals",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18),)
+                        ),
+                        GestureDetector(
+                          child: Container(
+                              padding:EdgeInsets.fromLTRB(10, 0, 10, 0),
+                              alignment: Alignment.topLeft,
+                              child:Text("View All",style: TextStyle(fontWeight: FontWeight.bold,fontSize:18,color: Colors.red),)
+                          ),
+                          onTap:() {
+                            Navigator.push(context,new MaterialPageRoute(builder: (context)=>new ProductAll(cityid)));
+                          } ,
+                        ),
+                      ]
+                  ),
+                  Container(
+                    color: Colors.white,
+                    padding: EdgeInsets.all(8),
+                    height:280,
+                    child:ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount:6,
+                        itemBuilder: (BuildContext context,int index){
+                          return
+                            InkWell(
+                                child: Row(
+                                  children: [
+                                    SizedBox(
+                                      width:5,
+                                    ),
+
+                                    new Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children:[
+
+                                        Column(
+                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children:[
+                                              Row(
+                                                children: [
+
+                                                  Container(
+                                                    child:Image(image: NetworkImage('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSgDiOpXuOp6oEfsOzwj0hYorplXPBx-6EifQ&usqp=CAU')),
+                                                  ),
+                                                ],
+                                              ),
+                                              //Text('ghhh'),
+
+                                              Text(product[index]['productname'],style:TextStyle(fontWeight: FontWeight.bold,color: Colors.black,fontSize: 18),textAlign:TextAlign.center),
+
+
+                                            ]
+                                        ),
+
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                onTap:() {
+                                  Navigator.push(context,new MaterialPageRoute(builder: (context)=>new VieweachProduct(product[index])));
+                                }
+                            );
+                        }
+                    ),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Container(
+                    padding: EdgeInsets.all(8),
+                    height: 150.0,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage(
+                            'assets/home.png'),
+                        fit: BoxFit.contain,
                       ),
                       shape: BoxShape.rectangle,
                     ),
@@ -969,18 +1100,18 @@ class _HomePage extends State<HomePage> {
         //print(json.decode(response.body));
         if(json.decode(response.body)['status'])
         {
-          Navigator.push(context,new MaterialPageRoute(builder: (context)=>new SearchProduct(keyword.text,searchMsg))).then((value) {
-            //This makes sure the textfield is cleared after page is pushed.
-            keyword.clear();
-          });
+          // //Navigator.push(context,new MaterialPageRoute(builder: (context)=>new SearchProduct(keyword.text,searchMsg))).then((value) {
+          //   //This makes sure the textfield is cleared after page is pushed.
+          //   keyword.clear();
+          // });
         }
 
         else{
           searchMsg=json.decode(response.body)['msg'];
-          Navigator.push(context,new MaterialPageRoute(builder: (context)=>new SearchProduct(keyword.text,searchMsg))).then((value) {
-            //This makes sure the textfield is cleared after page is pushed.
-            keyword.clear();
-          });
+          // Navigator.push(context,new MaterialPageRoute(builder: (context)=>new SearchProduct(keyword.text,searchMsg))).then((value) {
+          //   //This makes sure the textfield is cleared after page is pushed.
+          //   keyword.clear();
+          // });
           // print(json.decode(response.body)['msg']);
           // Fluttertoast.showToast(
           //   msg:json.decode(response.body)['msg'],
@@ -1034,6 +1165,7 @@ class _HomePage extends State<HomePage> {
       print(location.text);
       print(city.text);
 
+
     } catch (e) {
       print(e);
     }
@@ -1045,116 +1177,166 @@ class _HomePage extends State<HomePage> {
     showModalBottomSheet(
         context: context,
         builder: (BuildContext bc) {
-          return Container(
-            height:MediaQuery.of(context).size.height/2,
-            child: new Wrap(
-              children: <Widget>[
-                Container(
-                    padding: EdgeInsets.all(10),
-                    //height: MediaQuery.of(context).size.height,
-                    child:Text("Where do you want the delivery?",style:TextStyle(fontWeight: FontWeight.bold,fontSize: 18,color: Colors.indigo),)
-                ),
-                SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        children: [
-                          Container(
-                            height:MediaQuery.of(context).size.height/3,
-                            //height: 500,
-                            child: ListView.builder(
-                                itemCount: deliverylength.length,
-                                itemBuilder: (BuildContext context,int index) {
-                                  return Card(
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10.0)),
-                                    elevation: 4.0,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(15.0),
-                                      child: new Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        children: [
+          return StatefulBuilder(builder:(BuildContext context,StateSetter mystate) {
+            return Container(
+              height: MediaQuery
+                  .of(context)
+                  .size
+                  .height / 2,
+              child: new Wrap(
+                children: <Widget>[
+                  Container(
+                      padding: EdgeInsets.all(10),
+                      //height: MediaQuery.of(context).size.height,
+                      child: Text("Where do you want the delivery?",
+                        style: TextStyle(fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            color: Colors.indigo),)
+                  ),
+                  SingleChildScrollView(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          children: [
+                            Container(
+                              height: MediaQuery
+                                  .of(context)
+                                  .size
+                                  .height / 3,
+                              //height: 500,
+                              child: ListView.builder(
+                                  itemCount: deliverylength.length,
+                                  itemBuilder: (BuildContext context,
+                                      int index) {
+                                    return Card(
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                              10.0)),
+                                      elevation: 4.0,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(15.0),
+                                        child: new Column(
+                                          crossAxisAlignment: CrossAxisAlignment
+                                              .start,
+                                          mainAxisAlignment: MainAxisAlignment
+                                              .start,
+                                          children: [
 
-                                          Row(
-                                            children: [
-                                              new Checkbox(
-                                                value: a==listprofile['deliveryaddress'][index]['_id']?true:false,
-                                                //value:checkValue[index],
-                                                activeColor: Colors.green,
-                                                onChanged:(bool newValue){
-                                                  fulladdress=listprofile['deliveryaddress'][index]['fulladdress'];
-                                                  st=listprofile['deliveryaddress'][index]['state'];
-                                                  ci=listprofile['deliveryaddress'][index]['city'];
-                                                  current=listprofile['currentcity']['_id'];
-                                                  // print(current);
-                                                  //print(ci);
-                                                  lon=listprofile['deliveryaddress'][index]['location'][0];
-                                                  lat=listprofile['deliveryaddress'][index]['location'][1];
-                                                  setState(() {
-                                                    //checkValue[index] = newValue;
-                                                    //a=listprofile['deliveryaddress'][index]['_id'];
-                                                    ViewData();
-                                                  });
+                                            Row(
+                                              children: [
+                                                new Checkbox(
+                                                  value: a ==
+                                                      listprofile['deliveryaddress'][index]['_id'] ? true : false,
+                                                  //value:checkValue[index],
+                                                  activeColor: Colors.green,
+                                                  onChanged: (bool newValue) {
+                                                    a =
+                                                    listprofile['deliveryaddress'][index]['_id'];
+                                                    fulladdress =
+                                                    listprofile['deliveryaddress'][index]['fulladdress'];
+                                                    st =
+                                                    listprofile['deliveryaddress'][index]['state'];
+                                                    ci =
+                                                    listprofile['deliveryaddress'][index]['city'];
+                                                    current =
+                                                    listprofile['currentcity']['_id'];
+                                                    //print(current);
+                                                    //print(ci);
+                                                    lon =
+                                                    listprofile['deliveryaddress'][index]['location'][0];
+                                                    lat =
+                                                    listprofile['deliveryaddress'][index]['location'][1];
+                                                    mystate(() {
+                                                      //checkValue[index] = newValue;
+                                                      // a =
+                                                      // listprofile['deliveryaddress'][index]['_id'];
+                                                      // print(a);
+                                                      //ViewData();
+                                                    });
+                                                  },
+                                                ),
+                                                Text("Select delivery address"),
+                                              ],
+                                            ),
+                                            Row(
+                                              children: [
+                                                Text(listprofile['name'],
+                                                  style: TextStyle(fontSize: 16,
+                                                      fontWeight: FontWeight
+                                                          .bold),),
+                                              ],
+                                            ),
+                                            SizedBox(
+                                                height: 10
+                                            ),
+                                            Row(
+                                              children: [
+
+                                                Expanded(flex: 1,
+                                                    child: Text(
+                                                      listprofile['deliveryaddress'][index]['fulladdress'],)),
+                                              ],
+                                            ),
+                                            Row(
+                                              //mainAxisAlignment: MainAxisAlignment.start,
+                                              children: [
+
+                                                Spacer(),
+                                                SizedBox(
+                                                    width: 80
+                                                ),
+
+                                              ],
+                                            ),
+                                            Container(
+                                              child: FlatButton(
+                                                textColor: Colors.green,
+                                                child: Text(
+                                                  'Update',
+                                                  textAlign: TextAlign.center,
+                                                  style: TextStyle(fontWeight: FontWeight.bold,fontSize: 16),
+                                                ),
+                                                onPressed: () {
+                                                  ViewData();
                                                 },
                                               ),
-                                              Text("Select delivery address"),
-                                            ],
-                                          ),
-                                          Row(
-                                            children: [
-                                              Text(listprofile['name'],style: TextStyle(fontSize:16,fontWeight: FontWeight.bold),),
-                                            ],
-                                          ),
-                                          SizedBox(
-                                              height: 10
-                                          ),
-                                          Row(
-                                            children: [
+                                            ),
 
-                                              Expanded(flex:1,child: Text(listprofile['deliveryaddress'][index]['fulladdress'],)),
-                                            ],
-                                          ),
-                                          Row(
-                                            //mainAxisAlignment: MainAxisAlignment.start,
-                                            children: [
-
-                                              Spacer(),
-                                              SizedBox(
-                                                  width:80
-                                              ),
-
-                                            ],
-                                          ),
-
-                                        ],
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                  );
-                                }),
-                          ),
-                          Container(
-                            child: FlatButton(
-                              textColor: Colors.green,
-                              child: Text(
-                                'Add New Address',textAlign: TextAlign.center,
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              onPressed: () {
-                                Navigator.pushReplacement(context,new MaterialPageRoute(builder: (context)=>new AddressAdd()));
-                              },
+                                    );
+                                  }),
                             ),
-                          ),
-                          SizedBox(height: 20,)
-                        ],
-                      ),
-                    )
-                ),
+                            Container(
+                              child: FlatButton(
+                                textColor: Colors.green,
+                                child: Text(
+                                  'Add New Address',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                onPressed: () {
+                                  Navigator.pushReplacement(context,
+                                      new MaterialPageRoute(builder: (
+                                          context) => new AddressAdd()));
+                                },
+                              ),
+                            ),
+                            SizedBox(height: 20,)
+                          ],
+                        ),
+                      )
+                  ),
 
 
-              ],
-            ),
-          );
+                ],
+              ),
+
+            );
+
+          }
+            );
         });
   }
   void ViewData() async {

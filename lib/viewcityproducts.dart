@@ -26,6 +26,7 @@ class _viewcityproducts extends State<viewcityproducts> {
   bool progress=false;
   List profile=[];
   //List p=[];
+  var pid;
   int page=1,count=5;
   var deldate;
   var len;
@@ -45,7 +46,8 @@ class _viewcityproducts extends State<viewcityproducts> {
     var response = await http.get(url,headers:requestHeaders);
     print(json.decode(response.body));
     if (json.decode(response.body)['status']) {
-      //deldate=json.decode(response.body)['data']['deliveryadddress']['deliverydate'];
+      //pid=json.decode(response.body)['data']['_id'];
+      //deldate=json.decode(response.body)['data']['deliverydetails']['deliveryDate'];
       len=json.decode(response.body)['count'];
       for (int i = 0; i < json.decode(response.body)['data'].length; i++)
         profile.add(json.decode(response.body)['data'][i]);
@@ -194,7 +196,7 @@ class _viewcityproducts extends State<viewcityproducts> {
                                     ],
                                   ),
                                   onTap:() {
-                                   // Navigator.push(context,new MaterialPageRoute(builder: (context)=>new VieweachProduct(profile[index]['_id'],profile[index]['seller']['_id'],widget.deldate)));
+                                    Navigator.push(context,new MaterialPageRoute(builder: (context)=>new VieweachProduct(profile[index])));
                                   }
                               )
                           );
