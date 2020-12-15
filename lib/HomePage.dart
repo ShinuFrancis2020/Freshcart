@@ -43,7 +43,7 @@ class _HomePage extends State<HomePage> {
     await viewproduct();
 
   }
-  var mycity;
+  var mycity,myid;
   var listprofile;
   var cityid;
   List<bool> checkValue=[];
@@ -71,6 +71,7 @@ class _HomePage extends State<HomePage> {
       cityid=json.decode(response.body)['data']['currentcity']['_id'];
       print(cityid);
       mycity=json.decode(response.body)['data']['currentcity']['city'];
+
       deliverylength=listprofile['deliveryaddress'];
       for(int i=0;i<deliverylength.length;i++) {
         //checkValue.add(false);
@@ -228,7 +229,7 @@ class _HomePage extends State<HomePage> {
   //List p=[];
   var pid;
   void  viewproduct() async {
-    var url = Prefmanager.baseurl+'/product/search';
+    var url = Prefmanager.baseurl+'/product/search?city='+cityid;
     var token = await Prefmanager.getToken();
     Map data = {
       "x-auth-token": token,
@@ -1085,7 +1086,7 @@ class _HomePage extends State<HomePage> {
   var searchMsg;
   void senddata() async {
     try{
-      var url = Prefmanager.baseurl+'/product/search';
+      var url = Prefmanager.baseurl+'/product/search?city='+cityid;
       var token=await Prefmanager.getToken();
       Map data={
         'x-auth-token': token,
@@ -1100,25 +1101,30 @@ class _HomePage extends State<HomePage> {
         //print(json.decode(response.body));
         if(json.decode(response.body)['status'])
         {
-          // //Navigator.push(context,new MaterialPageRoute(builder: (context)=>new SearchProduct(keyword.text,searchMsg))).then((value) {
-          //   //This makes sure the textfield is cleared after page is pushed.
-          //   keyword.clear();
-          // });
+          Navigator.push(context,new MaterialPageRoute(builder: (context)=>new SearchProduct(keyword.text,searchMsg,cityid))).then((value) {
+            //This makes sure the textfield is cleared after page is pushed.
+            keyword.clear();
+          });
         }
 
         else{
           searchMsg=json.decode(response.body)['msg'];
-          // Navigator.push(context,new MaterialPageRoute(builder: (context)=>new SearchProduct(keyword.text,searchMsg))).then((value) {
+          print("no products");
+
+          // Navigator.push(context,new MaterialPageRoute(builder: (context)=>new SearchProduct(keyword.text,searchMsg,cityid))).then((value) {
           //   //This makes sure the textfield is cleared after page is pushed.
-          //   keyword.clear();
+          //
           // });
           // print(json.decode(response.body)['msg']);
           // Fluttertoast.showToast(
-          //   msg:json.decode(response.body)['msg'],
-          //   toastLength: Toast.LENGTH_SHORT,
-          //   gravity: ToastGravity.CENTER,
-          //
+          //     msg: json.decode(response.body)['msg'],
+          //     toastLength: Toast.LENGTH_SHORT,
+          //     gravity: ToastGravity.CENTER,
+          //     backgroundColor: Colors.grey,
+          //     textColor: Colors.white,
+          //     fontSize: 20.0
           // );
+          keyword.clear();
         }
       }
       else {

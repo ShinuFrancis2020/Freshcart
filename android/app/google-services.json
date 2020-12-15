@@ -23,6 +23,14 @@
           }
         },
         {
+          "client_id": "150478276843-igavbdjk9cnkdmh37b9b99kjjm3kq76s.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.freshcart_app",
+            "certificate_hash": "68939fd096fcde524d83f6b240b4f653ff1cb302"
+          }
+        },
+        {
           "client_id": "150478276843-dssvpts1989mpbkbb2nv5tsm0a3a8qcu.apps.googleusercontent.com",
           "client_type": 3
         }

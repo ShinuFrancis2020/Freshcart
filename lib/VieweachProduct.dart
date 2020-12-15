@@ -146,20 +146,7 @@ bool selected=true;
                   SizedBox(
                       height:40
                   ),
-                  // FlatButton(
-                  //   height: 50,
-                  //   minWidth:MediaQuery.of(context).size.width /1,
-                  //   textColor: Colors.white,
-                  //   color:  buttonCheck==true?Colors.green:Colors.green,
-                  //   child: Text('Place Order'),
-                  //   // onPressed: () {
-                  //   //   buttonCheck==true?
-                  //   //  // Navigator.push(context,new MaterialPageRoute(builder: (context)=>new PlaceOrder(widget.pid,product['unit'])))
-                  //   //   :null;
-                  //   //
-                  //   // },
-                  //   //onPressed: null,
-                  // ),
+
 
                   FlatButton(
                     height: 50,

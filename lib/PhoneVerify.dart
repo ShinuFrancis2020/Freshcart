@@ -85,7 +85,8 @@ class _PhoneVerify  extends State <PhoneVerify > {
         "locationname":location.text,
 
       };
-      //print(data.toString());
+      print(data.toString());
+        print(idToken);
       var response = await http.post(url,body:data);
         print(json.decode(response.body));
         if (json.decode(response.body)['status']) {
