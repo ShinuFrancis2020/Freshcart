@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:freshcart_app/Prefmanager.dart';
 import 'package:freshcart_app/VieweachProduct.dart';
+import 'package:freshcart_app/currentcity.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 class viewcityproducts extends StatefulWidget {
@@ -13,6 +14,8 @@ class viewcityproducts extends StatefulWidget {
   _viewcityproducts createState() => _viewcityproducts();
 }
 class _viewcityproducts extends State<viewcityproducts> {
+  DateTime selectedDate = DateTime.now();
+  var formattedDate = new DateFormat('dd-MM-yyyy');
 
   @override
   void initState() {
@@ -87,7 +90,19 @@ class _viewcityproducts extends State<viewcityproducts> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Expanded(child:NotificationListener<ScrollNotification>(
+              currentcity(),
+              profile.length==0?
+              Container(
+                height: 200,
+                width: double.infinity,
+                //color: Colors.grey,
+                alignment: Alignment.bottomCenter,
+                margin: EdgeInsets.all(20),
+                padding: EdgeInsets.all(30),
+                child: Text("No products added by seller "+widget.name,
+                    style: TextStyle(fontSize:18)),
+              )
+              :Expanded(child:NotificationListener<ScrollNotification>(
                 onNotification: (ScrollNotification scrollInfo) {
                   if (!loading && scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
                     if(len>profile.length){
@@ -179,8 +194,8 @@ class _viewcityproducts extends State<viewcityproducts> {
                                                       Row(
                                                           children:[
                                                             profile[index]['deliverydetails']['deliveryDate']==null?
-                                                            Text("No new delivery date set",style:TextStyle(fontWeight: FontWeight.bold)):
-                                                            Expanded(flex:1,child: Text("Next delivery by "+d.format(DateTime.parse( profile[index]['deliverydetails']['deliveryDate'])),style: TextStyle(fontWeight: FontWeight.bold),)),
+                                                            Text("No new delivery date set",style:TextStyle(fontWeight: FontWeight.bold)):selectedDate.difference(DateTime.parse(profile[index]['deliverydetails']['deliveryDate'])).inDays>0?
+                                                            Expanded(flex:1,child: Text("last delivery by "+d.format(DateTime.parse( profile[index]['deliverydetails']['deliveryDate'])),style: TextStyle(fontWeight: FontWeight.bold),)):Text("Next delivery by "+d.format(DateTime.parse( profile[index]['deliverydetails']['deliveryDate'])),style: TextStyle(fontWeight: FontWeight.bold),)
                                                           ]
                                                       ),
 

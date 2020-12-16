@@ -26,6 +26,7 @@ class HomePage extends StatefulWidget {
   _HomePage createState() => _HomePage();
 }
 class _HomePage extends State<HomePage> {
+  int _n = 0;
   var a,fulladdress,current;
   TextEditingController state = TextEditingController();
   TextEditingController city = TextEditingController();
@@ -41,7 +42,6 @@ class _HomePage extends State<HomePage> {
     await category();
     await ProductView();
     await viewproduct();
-
   }
   var mycity,myid;
   var listprofile;
@@ -507,34 +507,23 @@ class _HomePage extends State<HomePage> {
         length: listcat.length,
         child: Scaffold(
           appBar: AppBar(
-            title:Text("FreshCart"),
+            title:Text("FreshCart",style: TextStyle(fontSize: 18),),
             //centerTitle: true,
             elevation: 0.0,
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(
+                  Icons.add_shopping_cart,
+                  color: Colors.white,
+                  size: 30,
+                ),
+                onPressed: () {
+                  // do something
+                },
+              )
+            ],
 
-            // title: TextField(
-            //   style: TextStyle(fontSize: 15),
-            //   decoration: InputDecoration(
-            //     hintText: "Search",
-            //     prefixIcon: Icon(Icons.search,color:Colors.white70),
-            //   ),
-            // ),
-            // bottom: TabBar(
-            //   //tabs: [
-            //     //Tab(text:listcat[i]['name']),
-            //     tabs: List<Widget>.generate(listcat.length, (int index){
-            //       //print(categories[0]);
-            //       if(listcat[index]['name']=='Fish')
-            //         Image(image: AssetImage('assets/fishimage2.jpg'));
-            //       if(listcat[index]['name']=='Meat')
-            //       Image(image: AssetImage('assets/meat.jpeg'));
-            //       if(listcat[index]['name']=='Vegetables')
-            //       Image(image: AssetImage('assets/vegetables.jpg'));
-            //       return new Tab(icon: ClipOval(child: Image.asset('assets/vegetables.jpg',fit: BoxFit.fill,height:40,width: 40,)), text: listcat[index]['name']);
-            //
-            //     }),
-            //     //Tab(icon: Icon(Icons.directions_transit)),
-            //     //Tab(icon: Icon(Icons.directions_bike)),
-            // ),
+
           ),
 
           bottomNavigationBar: BottomAppBar(
@@ -943,10 +932,10 @@ class _HomePage extends State<HomePage> {
                   Container(
                     color: Colors.white,
                     padding: EdgeInsets.all(8),
-                    height:280,
+                    height:400,
                     child:ListView.builder(
                         scrollDirection: Axis.horizontal,
-                        itemCount:6,
+                        itemCount:product.length>6?6:product.length,
                         itemBuilder: (BuildContext context,int index){
                           return
                             InkWell(
@@ -972,16 +961,45 @@ class _HomePage extends State<HomePage> {
                                                   ),
                                                 ],
                                               ),
-                                              //Text('ghhh'),
-
                                               Text(product[index]['productname'],style:TextStyle(fontWeight: FontWeight.bold,color: Colors.black,fontSize: 18),textAlign:TextAlign.center),
+                                              SizedBox(
+                                                height: 10,
+                                              ),
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                crossAxisAlignment:CrossAxisAlignment.center,
 
+                                                children: [
+                                                  Container(
+                                                    height:20,
+                                                    child: FloatingActionButton(
+                                                      onPressed: add,
+                                                      child: new Icon(Icons.add, color: Colors.black,size: 15,
+                                                      ),
+                                                      backgroundColor: Colors.green,),
+                                                    decoration: BoxDecoration(
+                                                        shape: BoxShape.circle,
+                                                        gradient: LinearGradient(colors: [Colors.red, Colors.blue])),
+                                                  ),
+
+                                                  new Text("ADD",
+                                                      style: new TextStyle(fontSize: 20.0,fontWeight: FontWeight.bold)),
+
+                                                  new FloatingActionButton(
+                                                    onPressed: minus,
+                                                    child: new Icon(
+                                                        Icons.filter_list,
+                                                        color: Colors.black,size: 15,),
+                                                    backgroundColor: Colors.green,),
+                                                ],
+                                              ),
 
                                             ]
                                         ),
-
                                       ],
                                     ),
+
+
                                   ],
                                 ),
                                 onTap:() {
@@ -1111,10 +1129,9 @@ class _HomePage extends State<HomePage> {
           searchMsg=json.decode(response.body)['msg'];
           print("no products");
 
-          // Navigator.push(context,new MaterialPageRoute(builder: (context)=>new SearchProduct(keyword.text,searchMsg,cityid))).then((value) {
+           Navigator.push(context,new MaterialPageRoute(builder: (context)=>new SearchProduct(keyword.text,searchMsg,cityid))).then((value) {
           //   //This makes sure the textfield is cleared after page is pushed.
-          //
-          // });
+          });
           // print(json.decode(response.body)['msg']);
           // Fluttertoast.showToast(
           //     msg: json.decode(response.body)['msg'],
@@ -1373,6 +1390,17 @@ class _HomePage extends State<HomePage> {
       );
     }
 
+  }
+  void add() {
+    setState(() {
+      _n++;
+    });
+  }
+  void minus() {
+    setState(() {
+      if (_n != 0)
+        _n--;
+    });
   }
 
 }

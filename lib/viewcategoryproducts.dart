@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:freshcart_app/Prefmanager.dart';
 import 'package:freshcart_app/VieweachProduct.dart';
+import 'package:freshcart_app/currentcity.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 class viewcategoryproducts extends StatefulWidget {
@@ -13,6 +14,8 @@ class viewcategoryproducts extends StatefulWidget {
   _viewcategoryproducts createState() => _viewcategoryproducts();
 }
 class _viewcategoryproducts extends State<viewcategoryproducts> {
+  DateTime selectedDate = DateTime.now();
+  var formattedDate = new DateFormat('dd-MM-yyyy');
 
   @override
   void initState() {
@@ -88,6 +91,7 @@ class _viewcategoryproducts extends State<viewcategoryproducts> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
+              currentcity(),
               Expanded(child:NotificationListener<ScrollNotification>(
                 onNotification: (ScrollNotification scrollInfo) {
                   if (!loading && scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
@@ -185,10 +189,12 @@ class _viewcategoryproducts extends State<viewcategoryproducts> {
                                                       ),
                                                       Row(
                                                           children:[
-
-                                                            Expanded(flex:1,child: Text("Next Delivery on: "+d.format(DateTime.parse(profile[index]['deliverydetails']['deliveryDate'])),style: TextStyle(fontWeight: FontWeight.bold),)),
+                                                            profile[index]['deliverydetails']['deliveryDate']==null?
+                                                            Text("No new delivery date set",style:TextStyle(fontWeight: FontWeight.bold)):selectedDate.difference(DateTime.parse(profile[index]['deliverydetails']['deliveryDate'])).inDays>0?
+                                                            Expanded(flex:1,child: Text("last delivery by "+d.format(DateTime.parse( profile[index]['deliverydetails']['deliveryDate'])),style: TextStyle(fontWeight: FontWeight.bold),)):Text("Next delivery by "+d.format(DateTime.parse( profile[index]['deliverydetails']['deliveryDate'])),style: TextStyle(fontWeight: FontWeight.bold),)
                                                           ]
                                                       ),
+
 
                                                     ]
                                                 )

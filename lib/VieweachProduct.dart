@@ -5,6 +5,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:freshcart_app/PlaceOrder.dart';
 import 'package:freshcart_app/Prefmanager.dart';
 import 'package:freshcart_app/ViewsellerProductsall.dart';
+import 'package:freshcart_app/currentcity.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 class VieweachProduct extends StatefulWidget {
@@ -14,6 +15,8 @@ class VieweachProduct extends StatefulWidget {
   _VieweachProduct createState() => _VieweachProduct();
 }
 class _VieweachProduct extends State<VieweachProduct> {
+  DateTime selectedDate = DateTime.now();
+  var formattedDate = new DateFormat('dd-MM-yyyy');
   @override
  Future<void> initState(){
     super.initState();
@@ -110,6 +113,7 @@ bool selected=true;
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
+                  currentcity(),
                   SizedBox(
                       height:10
                   ),
@@ -139,15 +143,29 @@ bool selected=true;
                   Row(
                     children: [
                       widget.details['deliverydetails']['deliveryDate']==null?
-                      Text("No new delivery date set",style:TextStyle(fontWeight: FontWeight.bold)):
-                      Expanded(flex:1,child: Text("Next delivery by "+d.format(DateTime.parse(widget.details['deliverydetails']['deliveryDate'])),style: TextStyle(fontWeight: FontWeight.bold),)),
+                      Text("No new delivery date set",style:TextStyle(fontWeight: FontWeight.bold)):selectedDate.difference(DateTime.parse(widget.details['deliverydetails']['deliveryDate'])).inDays>0?
+                      Expanded(flex:1,child: Text("last delivery by "+d.format(DateTime.parse(widget.details['deliverydetails']['deliveryDate'])),style: TextStyle(fontWeight: FontWeight.bold),)):Text("Next delivery by "+d.format(DateTime.parse(widget.details['deliverydetails']['deliveryDate'])),style: TextStyle(fontWeight: FontWeight.bold),),
                     ],
                   ),
                   SizedBox(
                       height:40
                   ),
 
+                  widget.details['deliverydetails']['deliveryDate']==null?
+                  SizedBox.shrink()
+                      :selectedDate.difference(DateTime.parse(widget.details['deliverydetails']['deliveryDate'])).inDays>0?
+                  FlatButton(
+                    height: 50,
+                    minWidth:MediaQuery.of(context).size.width /1,
+                    textColor: Colors.white,
+                    color: Colors.grey,
+                    child: Text('Place Order'),
+                    onPressed: () {
 
+                     // Navigator.push(context,new MaterialPageRoute(builder: (context)=>new PlaceOrder(widget.details['_id'],widget.details['unit'])));
+
+                          },
+                  ):
                   FlatButton(
                     height: 50,
                     minWidth:MediaQuery.of(context).size.width /1,
@@ -158,7 +176,7 @@ bool selected=true;
 
                       Navigator.push(context,new MaterialPageRoute(builder: (context)=>new PlaceOrder(widget.details['_id'],widget.details['unit'])));
 
-                          },
+                    },
                   ),
                   SizedBox(
                       height:10

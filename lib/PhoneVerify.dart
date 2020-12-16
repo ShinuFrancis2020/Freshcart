@@ -47,6 +47,7 @@ class _PhoneVerify  extends State <PhoneVerify > {
       var url=Prefmanager.baseurl+'/user/check/phone';
       Map data={
         "phone":widget.phone,
+        "role":"User"
       };
       var response = await http.post(url,body:data);
       isnew=json.decode(response.body)['status'];

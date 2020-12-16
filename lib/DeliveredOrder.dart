@@ -166,10 +166,10 @@ class _DeliveredOrder  extends State <DeliveredOrder > {
                                   padding: const EdgeInsets.all(8.0),
                                   child: Row(
                                     children: [
-                                      Text("Ordered on "+d.format(DateTime.parse(orders[index]['orderdate'].toString())),style: TextStyle(color:Colors.grey,fontSize:12,fontWeight: FontWeight.bold),),
+                                      Text("Ordered on "+d.format(DateTime.parse(orders[index]['orderdate'].toString())),style: TextStyle(color:Colors.red,fontSize:12,fontWeight: FontWeight.bold),),
                                       Spacer(),
                                       orders[index]['total']>0?
-                                      Text("Total price "+orders[index]['total'].toString(),style: TextStyle(color:Colors.grey,fontSize:12,fontWeight: FontWeight.bold),):SizedBox.shrink()
+                                      Text("Total price "+orders[index]['total'].toString(),style: TextStyle(color:Colors.red,fontSize:12,fontWeight: FontWeight.bold),):SizedBox.shrink()
 
                                     ],
                                   ),
