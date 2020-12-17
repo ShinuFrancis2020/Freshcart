@@ -17,11 +17,14 @@ class _ProductAll extends State<ProductAll> {
   @override
   void initState() {
     super.initState();
+    cartview();
     viewproduct();
+
 
     print(widget.id);
     //sellerprofile();
   }
+  List n=[];
   var d=new DateFormat('dd-MM-yy');
   bool progress=false;
   List profile=[];
@@ -45,10 +48,26 @@ class _ProductAll extends State<ProductAll> {
     var response = await http.get(url,headers:requestHeaders);
     print(json.decode(response.body));
     if (json.decode(response.body)['status']) {
+
       //deldate=json.decode(response.body)['data']['deliveryadddress']['deliverydate'];
       len=json.decode(response.body)['count'];
       for (int i = 0; i < json.decode(response.body)['data'].length; i++)
         profile.add(json.decode(response.body)['data'][i]);
+      for(int i=0;i<profile.length;i++)
+        n.add(0);
+
+      for(int j=0;j<cname.length;j++)
+      {
+        for(int i=0;i<profile.length;i++)
+        {
+          if(cname[j]['product']['_id']==profile[i]['_id']){
+            n.removeAt(i);
+            n.insert(i, cname[j]['quantity']);
+          }
+
+        }
+      }
+
       page++;
     }
     else
@@ -181,6 +200,64 @@ class _ProductAll extends State<ProductAll> {
                                                             Expanded(flex:1,child: Text("Next delivery by "+d.format(DateTime.parse( profile[index]['deliverydetails']['deliveryDate'])),style: TextStyle(fontWeight: FontWeight.bold),)),
                                                           ]
                                                       ),
+                                                      Container(
+                                                        height:30,
+
+                                                        color:Colors.green,
+                                                        child: Row(
+                                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                          crossAxisAlignment:CrossAxisAlignment.center,
+
+                                                          children: [
+                                                            Container(
+                                                              height:20,
+
+                                                              child:MaterialButton(
+                                                                onPressed:()
+                                                                {
+                                                                  setState(() {
+                                                                    n[index]++;
+                                                                  });
+                                                                  print(n);
+                                                                },
+
+                                                                child: new Icon(Icons.add, color: Colors.black,size: 15,
+                                                                ),
+                                                              ),
+                                                              decoration: BoxDecoration(
+                                                                  shape: BoxShape.circle,
+                                                                  color: Colors.white
+                                                                //gradient: LinearGradient(colors: [Colors.red, Colors.blue])
+                                                              ),
+                                                            ),
+                                                            n[index]<=0?
+                                                            new Text("ADD",
+                                                                style: new TextStyle(fontSize: 18.0,fontWeight: FontWeight.bold)):
+                                                            new Text('${n[index]}',
+                                                                style: new TextStyle(fontSize: 18.0,fontWeight: FontWeight.bold)),
+
+                                                            Container(
+                                                              height:20,
+                                                              child: new MaterialButton(
+                                                                  onPressed:()
+                                                                  {
+                                                                    setState(() {
+                                                                      n[index]--;
+                                                                    });
+                                                                    print(n);
+                                                                  },
+                                                                  child: new Icon(
+                                                                    Icons.filter_list,
+                                                                    color: Colors.black,size: 15,)),
+                                                              decoration: BoxDecoration(
+                                                                  shape: BoxShape.circle,
+                                                                  color: Colors.white
+                                                                //gradient: LinearGradient(colors: [Colors.red, Colors.blue])
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
 
                                                     ]
                                                 )
@@ -217,5 +294,37 @@ class _ProductAll extends State<ProductAll> {
 
     );
   }
+  var cname;
+  void cartview() async {
+    var url = Prefmanager.baseurl +'/Cart/all';
+    print("ffgg");
+    var token = await Prefmanager.getToken();
+    Map cartdata={
+      "x-auth-token":token,
 
-}
+    };
+    print(cartdata);
+    //var body =json.encode(cartdata);
+    print("print");
+    var response = await http.get(url, headers:{"Content-Type":"application/json", "x-auth-token":token});
+    print("response");
+    print(json.decode(response.body));
+    if(json.decode(response.body)['status']) {
+      cname=json.decode(response.body)['data'];
+      print("success,added cart");
+    }
+
+    else {
+      Fluttertoast.showToast(
+          msg: json.decode(response.body)['msg'],
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          backgroundColor: Colors.grey,
+          textColor: Colors.white,
+          fontSize: 20.0
+      );
+    }
+    setState(() {});
+  }
+
+  }

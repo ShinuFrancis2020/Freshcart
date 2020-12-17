@@ -20,11 +20,13 @@ class _viewcategoryproducts extends State<viewcategoryproducts> {
   @override
   void initState() {
     super.initState();
+    cartview();
     viewproduct();
     print(widget.categoryid);
     print(widget.id);
     //sellerprofile();
   }
+  List n=[];
   var d=new DateFormat('dd-MM-yy');
   bool progress=false;
   List profile=[];
@@ -55,6 +57,20 @@ class _viewcategoryproducts extends State<viewcategoryproducts> {
       len=json.decode(response.body)['count'];
       for (int i = 0; i < json.decode(response.body)['data'].length; i++)
         profile.add(json.decode(response.body)['data'][i]);
+      for(int i=0;i<profile.length;i++)
+        n.add(0);
+
+      for(int j=0;j<cname.length;j++)
+      {
+        for(int i=0;i<profile.length;i++)
+        {
+          if(cname[j]['product']['_id']==profile[i]['_id']){
+            n.removeAt(i);
+            n.insert(i, cname[j]['quantity']);
+          }
+
+        }
+      }
       page++;
     }
     else
@@ -184,7 +200,7 @@ class _viewcategoryproducts extends State<viewcategoryproducts> {
                                                       Row(
                                                           children:[
 
-                                                            Expanded(flex:1,child: Text("Seller Name: "+profile[index]['seller']['name'],style: TextStyle(fontWeight: FontWeight.bold),)),
+                                                            //Expanded(flex:1,child: Text("Seller Name:"+profile[index]['seller']['name']?? " ",style: TextStyle(fontWeight: FontWeight.bold),)),
                                                           ]
                                                       ),
                                                       Row(
@@ -193,6 +209,66 @@ class _viewcategoryproducts extends State<viewcategoryproducts> {
                                                             Text("No new delivery date set",style:TextStyle(fontWeight: FontWeight.bold)):selectedDate.difference(DateTime.parse(profile[index]['deliverydetails']['deliveryDate'])).inDays>0?
                                                             Expanded(flex:1,child: Text("last delivery by "+d.format(DateTime.parse( profile[index]['deliverydetails']['deliveryDate'])),style: TextStyle(fontWeight: FontWeight.bold),)):Text("Next delivery by "+d.format(DateTime.parse( profile[index]['deliverydetails']['deliveryDate'])),style: TextStyle(fontWeight: FontWeight.bold),)
                                                           ]
+                                                      ),
+                                                      Container(
+                                                        height:30,
+
+                                                        color:Colors.green,
+                                                        child: Row(
+                                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                          crossAxisAlignment:CrossAxisAlignment.center,
+
+                                                          children: [
+                                                            Container(
+                                                              height:20,
+
+                                                              child:MaterialButton(
+                                                                onPressed:()
+                                                                {
+                                                                  setState(() {
+                                                                    n[index]++;
+                                                                  });
+                                                                  mycart(
+                                                                      profile[index]['_id'], n[index]);
+                                                                  print(n);
+                                                                },
+
+                                                                child: new Icon(Icons.add, color: Colors.black,size: 15,
+                                                                ),
+                                                              ),
+                                                              decoration: BoxDecoration(
+                                                                  shape: BoxShape.circle,
+                                                                  color: Colors.white
+                                                                //gradient: LinearGradient(colors: [Colors.red, Colors.blue])
+                                                              ),
+                                                            ),
+                                                            n[index]<=0?
+                                                            new Text("ADD",
+                                                                style: new TextStyle(fontSize: 18.0,fontWeight: FontWeight.bold)):
+                                                            new Text('${n[index]}',
+                                                                style: new TextStyle(fontSize: 18.0,fontWeight: FontWeight.bold)),
+
+                                                            Container(
+                                                              height:20,
+                                                              child: new MaterialButton(
+                                                                  onPressed:()
+                                                                  {
+                                                                    setState(() {
+                                                                      n[index]--;
+                                                                    });
+                                                                    print(n);
+                                                                  },
+                                                                  child: new Icon(
+                                                                    Icons.filter_list,
+                                                                    color: Colors.black,size: 15,)),
+                                                              decoration: BoxDecoration(
+                                                                  shape: BoxShape.circle,
+                                                                  color: Colors.white
+                                                                //gradient: LinearGradient(colors: [Colors.red, Colors.blue])
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
                                                       ),
 
 
@@ -231,5 +307,79 @@ class _viewcategoryproducts extends State<viewcategoryproducts> {
 
     );
   }
+  void mycart(productid, quantity) async {
+    var url = Prefmanager.baseurl + '/Cart/Addorupdate';
+    print("ffgg");
+    var token = await Prefmanager.getToken();
+    Map cartdata = {
+      "x-auth-token": token,
+      "productid": productid,
+      "quantity": quantity
+    };
+    print(cartdata);
+    var body = json.encode(cartdata);
+    print("print");
+    var response = await http.post(url,
+        headers: {"Content-Type": "application/json", "x-auth-token": token},
+        body: body);
+    print("response");
+    print(json.decode(response.body));
+    if (json.decode(response.body)['status']) {
+      Fluttertoast.showToast(
+          msg: json.decode(response.body)['msg'],
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          backgroundColor: Colors.grey,
+          textColor: Colors.white,
+          fontSize: 20.0
+      );
+      //Navigator.of(context).pop(true);
+      print("success,added cart");
+      //viewproduct();
+    }
 
-}
+    else {
+      Fluttertoast.showToast(
+          msg: json.decode(response.body)['msg'],
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          backgroundColor: Colors.grey,
+          textColor: Colors.white,
+          fontSize: 20.0
+      );
+    }
+  }
+  var cname;
+  void cartview() async {
+    var url = Prefmanager.baseurl +'/Cart/all';
+    print("ffgg");
+    var token = await Prefmanager.getToken();
+    Map cartdata={
+      "x-auth-token":token,
+
+    };
+    print(cartdata);
+    //var body =json.encode(cartdata);
+    print("print");
+    var response = await http.get(url, headers:{"Content-Type":"application/json", "x-auth-token":token});
+    print("response");
+    print(json.decode(response.body));
+    if(json.decode(response.body)['status']) {
+      cname=json.decode(response.body)['data'];
+      print("success,added cart");
+    }
+
+    else {
+      Fluttertoast.showToast(
+          msg: json.decode(response.body)['msg'],
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          backgroundColor: Colors.grey,
+          textColor: Colors.white,
+          fontSize: 20.0
+      );
+    }
+    setState(() {});
+  }
+
+  }

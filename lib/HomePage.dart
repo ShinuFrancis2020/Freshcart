@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:freshcart_app/AddressAdd.dart';
+import 'package:freshcart_app/Cart.dart';
 import 'package:freshcart_app/ProductAll.dart';
 import 'package:freshcart_app/VieweachProduct.dart';
 import 'package:freshcart_app/viewcategoryproducts.dart';
@@ -26,7 +27,8 @@ class HomePage extends StatefulWidget {
   _HomePage createState() => _HomePage();
 }
 class _HomePage extends State<HomePage> {
-  int _n = 0;
+  List n=[];
+  var prid;
   var a,fulladdress,current;
   TextEditingController state = TextEditingController();
   TextEditingController city = TextEditingController();
@@ -40,6 +42,7 @@ class _HomePage extends State<HomePage> {
     await profile();
     await sellerView();
     await category();
+    await cartview();
     await ProductView();
     await viewproduct();
   }
@@ -211,6 +214,24 @@ class _HomePage extends State<HomePage> {
     //print(json.decode(response.body));
     if (json.decode(response.body)['status']) {
       product=json.decode(response.body)['data'];
+
+      for(int i=0;i<product.length;i++)
+      n.add(0);
+
+      for(int j=0;j<cname.length;j++)
+        {
+          for(int i=0;i<product.length;i++)
+          {
+            if(cname[j]['product']['_id']==product[i]['_id']){
+              n.removeAt(i);
+              n.insert(i, cname[j]['quantity']);
+            }
+
+          }
+        }
+
+
+     // n.fillRange(0, product.length>6?6:product.length,{4});
       print(product);
 
       leng=json.decode(response.body)['count'];
@@ -518,7 +539,9 @@ class _HomePage extends State<HomePage> {
                   size: 30,
                 ),
                 onPressed: () {
-                  // do something
+                  Navigator.push(
+                      context, new MaterialPageRoute(
+                      builder: (context) => new Cart()));
                 },
               )
             ],
@@ -938,73 +961,104 @@ class _HomePage extends State<HomePage> {
                         itemCount:product.length>6?6:product.length,
                         itemBuilder: (BuildContext context,int index){
                           return
-                            InkWell(
-                                child: Row(
-                                  children: [
-                                    SizedBox(
-                                      width:5,
-                                    ),
+                            Row(
+                              children: [
+                                SizedBox(
+                                  width:5,
+                                ),
 
-                                    new Row(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children:[
+                                new Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children:[
 
-                                        Column(
-                                            crossAxisAlignment: CrossAxisAlignment.center,
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children:[
-                                              Row(
-                                                children: [
+                                    Column(
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children:[
+                                          InkWell(
+                                            child: Row(
+                                              children: [
 
-                                                  Container(
-                                                    child:Image(image: NetworkImage('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSgDiOpXuOp6oEfsOzwj0hYorplXPBx-6EifQ&usqp=CAU')),
+                                                Container(
+                                                  child:Image(image: NetworkImage('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSgDiOpXuOp6oEfsOzwj0hYorplXPBx-6EifQ&usqp=CAU')),
+                                                ),
+                                              ],
+                                            ),
+                                              onTap:() {
+                                                Navigator.push(context,new MaterialPageRoute(builder: (context)=>new VieweachProduct(product[index])));
+                                              }
+                                          ),
+                                          //prid=product[index]['_id'],
+                                          //Text(product[index]['_id']),
+                                          Text(product[index]['productname'],style:TextStyle(fontWeight: FontWeight.bold,color: Colors.black,fontSize: 18),textAlign:TextAlign.center),
+                                          SizedBox(
+                                            height: 10,
+                                          ),
+
+                                          Container(
+                                            height:30,
+                                            color:Colors.green,
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                              crossAxisAlignment:CrossAxisAlignment.center,
+
+                                              children: [
+                                                Container(
+                                                  height:20,
+                                                  child:MaterialButton(
+                                                    onPressed:()
+                                                    {
+                                                    setState(() {
+                                                      n[index]++;
+                                                    });
+                                                    mycart(product[index]['_id'],n[index]);
+                                                    print(n);
+
+                                                    },
+                                                    child: new Icon(Icons.add, color: Colors.black,size: 15,
+                                                    ),
                                                   ),
-                                                ],
-                                              ),
-                                              Text(product[index]['productname'],style:TextStyle(fontWeight: FontWeight.bold,color: Colors.black,fontSize: 18),textAlign:TextAlign.center),
-                                              SizedBox(
-                                                height: 10,
-                                              ),
-                                              Row(
-                                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                                crossAxisAlignment:CrossAxisAlignment.center,
-
-                                                children: [
-                                                  Container(
-                                                    height:20,
-                                                    child: FloatingActionButton(
-                                                      onPressed: add,
-                                                      child: new Icon(Icons.add, color: Colors.black,size: 15,
-                                                      ),
-                                                      backgroundColor: Colors.green,),
-                                                    decoration: BoxDecoration(
-                                                        shape: BoxShape.circle,
-                                                        gradient: LinearGradient(colors: [Colors.red, Colors.blue])),
+                                                  decoration: BoxDecoration(
+                                                      shape: BoxShape.circle,
+                                                      color: Colors.white
+                                                      //gradient: LinearGradient(colors: [Colors.red, Colors.blue])
                                                   ),
+                                                ),
+                                                 n[index]<=0?
+                                                new Text("ADD",
+                                                    style: new TextStyle(fontSize: 18.0,fontWeight: FontWeight.bold)):
+                                                 new Text('${n[index]}',
+                                                     style: new TextStyle(fontSize: 18.0,fontWeight: FontWeight.bold)),
 
-                                                  new Text("ADD",
-                                                      style: new TextStyle(fontSize: 20.0,fontWeight: FontWeight.bold)),
-
-                                                  new FloatingActionButton(
-                                                    onPressed: minus,
+                                                Container(
+                                                  height:20,
+                                                  child: new MaterialButton(
+                                                    onPressed:()
+                                                    {
+                                                      setState(() {
+                                                        n[index]--;
+                                                      });
+                                                      mycart(product[index]['_id'],n[index]);
+                                                    },
                                                     child: new Icon(
                                                         Icons.filter_list,
-                                                        color: Colors.black,size: 15,),
-                                                    backgroundColor: Colors.green,),
-                                                ],
-                                              ),
+                                                        color: Colors.black,size: 15,)),
+                                                  decoration: BoxDecoration(
+                                                      shape: BoxShape.circle,
+                                                      color: Colors.white
+                                                      //gradient: LinearGradient(colors: [Colors.red, Colors.blue])
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
 
-                                            ]
-                                        ),
-                                      ],
+                                        ]
                                     ),
-
-
                                   ],
                                 ),
-                                onTap:() {
-                                  Navigator.push(context,new MaterialPageRoute(builder: (context)=>new VieweachProduct(product[index])));
-                                }
+
+                              ],
                             );
                         }
                     ),
@@ -1391,16 +1445,79 @@ class _HomePage extends State<HomePage> {
     }
 
   }
-  void add() {
-    setState(() {
-      _n++;
-    });
+  void mycart(productid,quantity) async {
+    var url = Prefmanager.baseurl +'/Cart/Addorupdate';
+    print("ffgg");
+    var token = await Prefmanager.getToken();
+    Map cartdata={
+      "x-auth-token":token,
+      "productid":productid,
+      "quantity":quantity
+    };
+    print(cartdata);
+    var body =json.encode(cartdata);
+    print("print");
+    var response = await http.post(url, headers:{"Content-Type":"application/json", "x-auth-token":token}, body:body);
+    print("response");
+    print(json.decode(response.body));
+    if(json.decode(response.body)['status']) {
+      Fluttertoast.showToast(
+          msg: json.decode(response.body)['msg'],
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          backgroundColor: Colors.grey,
+          textColor: Colors.white,
+          fontSize: 20.0
+      );
+      //Navigator.of(context).pop(true);
+      print("success,added cart");
+    }
+
+    else {
+      Fluttertoast.showToast(
+          msg: json.decode(response.body)['msg'],
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          backgroundColor: Colors.grey,
+          textColor: Colors.white,
+          fontSize: 20.0
+      );
+    }
+
   }
-  void minus() {
-    setState(() {
-      if (_n != 0)
-        _n--;
-    });
+  var cname;
+  void cartview() async {
+    var url = Prefmanager.baseurl +'/Cart/all';
+    print("ffgg");
+    var token = await Prefmanager.getToken();
+    Map cartdata={
+      "x-auth-token":token,
+
+    };
+    print(cartdata);
+    //var body =json.encode(cartdata);
+    print("print");
+    var response = await http.get(url, headers:{"Content-Type":"application/json", "x-auth-token":token});
+    print("response");
+    print(json.decode(response.body));
+    if(json.decode(response.body)['status']) {
+      cname=json.decode(response.body)['data'];
+      print("success,added cart");
+    }
+
+    else {
+      Fluttertoast.showToast(
+          msg: json.decode(response.body)['msg'],
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          backgroundColor: Colors.grey,
+          textColor: Colors.white,
+          fontSize: 20.0
+      );
+    }
+
   }
+
+
 
 }
